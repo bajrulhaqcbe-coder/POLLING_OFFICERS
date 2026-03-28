@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Student Search", layout="centered")
 
-st.title("🎓 Student Search System")
+st.title("🎓 Polling officers Search System")
 
 # ------------------ LOAD DATA ------------------ #
 @st.cache_data
