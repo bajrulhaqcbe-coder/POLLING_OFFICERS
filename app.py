@@ -3,17 +3,14 @@ import pandas as pd
 
 st.set_page_config(page_title="Student Search", layout="centered")
 
-st.title("Polling officers Search System")
+st.title("🎓 Student Search System")
 
-# Data load
+# ------------------ LOAD DATA ------------------ #
 @st.cache_data
 def load_data():
     df = pd.read_excel("data.xlsx")
-    
-    # Column clean
     df.columns = df.columns.str.strip()
     
-    # அனைத்து columns-யும் string ஆக மாற்றம்
     for col in df.columns:
         df[col] = df[col].astype(str).str.strip()
     
@@ -21,22 +18,24 @@ def load_data():
 
 df = load_data()
 
-# URL parameter
+# ------------------ INPUT ------------------ #
 query_params = st.query_params
 search_param = query_params.get("id")
 
-# Manual search input
-search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor...)")
+search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
 
-# Search value decide
+# ✅ Submit button
+search_clicked = st.button("🔎 Search")
+
+# Decide search value
+search_value = None
+
 if search_param:
     search_value = search_param[0].strip()
-elif search_input:
+elif search_clicked and search_input:
     search_value = search_input.strip()
-else:
-    search_value = None
 
-# Search logic (ALL columns)
+# ------------------ SEARCH ------------------ #
 if search_value:
     result = df[df.apply(
         lambda row: row.astype(str).str.contains(search_value, case=False).any(),
@@ -45,8 +44,22 @@ if search_value:
 
     if not result.empty:
         st.success(f"✅ {len(result)} result(s) found")
-        st.dataframe(result, use_container_width=True)
+
+        # 🎯 CARD VIEW DISPLAY
+        for _, row in result.iterrows():
+            with st.container():
+                st.markdown("---")
+                st.markdown(f"""
+                ### 👤 {row.get('Name', '')}
+
+                **🆔 Unique ID:** {row.get('Unique ID', '')}  
+                **📱 Mobile:** {row.get('Mobile Number', '')}  
+                **🏷 Category:** {row.get('Category', '')}  
+                **🏫 Hall No:** {row.get('Hall No', '')}  
+                **🏢 Floor:** {row.get('Floor', '')}  
+                """)
     else:
         st.error("❌ No Data Found")
+
 else:
-    st.info("📌 QR scan செய்யவும் அல்லது search value type செய்யவும்")
+    st.info("📌 QR scan செய்யவும் அல்லது value enter செய்து Search button அழுத்தவும்")
