@@ -71,11 +71,8 @@ if btn and search:
             st.write("👤 Name:", row['Name'])
             st.write("📱 Mobile:", row['Mobile Number'])
            if st.button("Mark Attendance", key=f"att_{i}"):
-
     st.write("Sending data...")
-
     log_to_google_sheet(row)
-
     st.success("Attendance Marked ✔")
     else:
         st.error("❌ No Data Found")
