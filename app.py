@@ -181,37 +181,39 @@ if search_value:
         st.markdown("""
         <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
             <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
-            <h4>சட்ட மன்ற தேர்தல்-2026</h4>
+            <h4>Tamil Nadu Legislative Assembly election</h4>
             <p><b>Training Center:</b><br>
-            டாக்டர். மஹாலிங்காம் பொறியியல் மற்றும் தொழில்நுட்பக் கல்லூரி (எம்.சி.இ.டி)</p>
+            Dr. Mahalingam College of Engineering and Technology (MCET))</p>
         </div>
         """, unsafe_allow_html=True)
 
-        # AUTO PDF DOWNLOAD (first record)
-        first_row = result.iloc[0]
-        pdf_buffer = create_pdf(first_row)
+            # RESULT DISPLAY
+       for _, row in result.iterrows():
+    with st.container():
+        st.markdown("---")
 
-        auto_download_pdf(
-            pdf_buffer,
-            filename=f"{first_row.get('Unique S.No','result')}.pdf"
+        st.markdown(f"""
+        ### 👤 {row.get('Name', '')}
+
+        **🆔 Unique No:** {row.get('Unique S.No', '')}  
+        **📱 Mobile:** {row.get('Mobile Number', '')}  
+        **🏷 Category:** {row.get('CATEGORY', '')}  
+        **👥 Team Code:** {row.get('TEAM_CODE', '')}  
+        **🎖 Designation:** {row.get('DESIGNATION', '')}  
+        **🏫 Hall No:** {row.get('Hall_no', '')}  
+        **🏢 Floor:** {row.get('Floor_No', '')}  
+        """)
+
+        # 👉 PDF create
+        pdf_buffer = create_pdf(row)
+
+        # 👉 DOWNLOAD BUTTON
+        st.download_button(
+            label="📄 PDF Download",
+            data=pdf_buffer,
+            file_name=f"{row.get('Unique S.No','result')}.pdf",
+            mime="application/pdf"
         )
-
-        # RESULT DISPLAY
-        for _, row in result.iterrows():
-            with st.container():
-                st.markdown("---")
-
-                st.markdown(f"""
-                ### 👤 {row.get('Name', '')}
-
-                **🆔 Unique No:** {row.get('Unique S.No', '')}  
-                **📱 Mobile:** {row.get('Mobile Number', '')}  
-                **🏷 Category:** {row.get('CATEGORY', '')}  
-                **👥 Team Code:** {row.get('TEAM_CODE', '')}  
-                **🎖 Designation:** {row.get('DESIGNATION', '')}  
-                **🏫 Hall No:** {row.get('Hall_no', '')}  
-                **🏢 Floor:** {row.get('Floor_No', '')}  
-                """)
 
     else:
         st.error("❌ No Data Found")
