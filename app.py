@@ -13,8 +13,8 @@ st.set_page_config(page_title="Polling Officers Search", layout="centered")
 st.title("🎓 Polling Officers Search System")
 
 # ------------------ CONFIG ------------------ #
-GOOGLE_SCRIPT_URL = "YOUR_WEB_APP_URL"
-SHEET_CSV_URL = "YOUR_CSV_LINK"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7mFEkd1IM7hteQ5nBGEg_LJRSu7jUOvjQOmuDriZyBC3aObl8BQ/exec"
+SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv"
 
 # ------------------ LOAD DATA ------------------ #
 @st.cache_data
@@ -86,14 +86,14 @@ def log_to_google_sheet(row):
     }
 
     try:
-        requests.post(GOOGLE_SCRIPT_URL, json=data)
+        requests.post(https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7mFEkd1IM7hteQ5nBGEg_LJRSu7jUOvjQOmuDriZyBC3aObl8BQ/exec, json=data)
     except:
         pass
 
 # ------------------ DASHBOARD ------------------ #
 @st.cache_data(ttl=5)
 def load_dashboard():
-    return pd.read_csv(SHEET_CSV_URL)
+    return pd.read_csv(https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv)
 
 try:
     dash_df = load_dashboard()
