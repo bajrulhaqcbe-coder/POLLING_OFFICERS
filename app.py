@@ -92,7 +92,7 @@ def log_to_google_sheet(row):
 
 # ------------------ DASHBOARD ------------------ #
 @st.cache_data(ttl=5)
-dash_df = pd.read_csv(https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv)
+dash_df = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv")
 
 # Column clean
 dash_df.columns = dash_df.columns.str.strip()
