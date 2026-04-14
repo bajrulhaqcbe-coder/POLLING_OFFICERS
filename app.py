@@ -3,23 +3,20 @@ import pandas as pd
 import requests
 from datetime import datetime
 
+# ---------------- CONFIG ---------------- #
 st.set_page_config(page_title="Polling Officers Search", layout="centered")
 st.title("🎓 Polling Officers Search System")
 
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyLRtLbfol36whNrDVrNAeznQIu9PCrhwcIUkKh32iXmrPr14h_xqZZB65TpzlacJjg/exec"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/XXXX/exec"
 
 # ---------------- LOAD DATA ---------------- #
 df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
+# clean columns (VERY IMPORTANT FIX)
 df.columns = df.columns.str.strip()
 
-df = df.rename(columns={
-    "Unique S.No": "Unique_SNo",
-    "Mobile_Number": "Mobile_Number"
-})
-
-for col in df.columns:
-    df[col] = df[col].astype(str).str.strip()
+# optional safe rename (space remove)
+df.columns = df.columns.str.replace(" ", "_")
 
 # ---------------- API FUNCTION ---------------- #
 def update_google_sheet(unique_no):
@@ -32,25 +29,25 @@ def update_google_sheet(unique_no):
     }
 
     try:
-        requests.post(GOOGLE_SCRIPT_URL, json=payload)
+        requests.post(GOOGLE_SCRIPT_URL, json=payload, timeout=5)
     except:
         pass
 
 # ---------------- SEARCH ---------------- #
-search_input = st.text_input("🔍 Search")
+search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
 
 if search_input:
 
     search_value = search_input.strip().lower()
 
     mask = (
-        df['Unique_SNo'].fillna('').str.lower().str.contains(search_value) |
-        df['Name'].fillna('').str.lower().str.contains(search_value) |
+        df['Unique_S.No'].astype(str).str.lower().str.contains(search_value) |
+        df['Name'].astype(str).str.lower().str.contains(search_value) |
         df['Mobile_Number'].astype(str).str.contains(search_value) |
-        df['Hall_no'].fillna('').str.lower().str.contains(search_value) |
-        df['Floor_No'].fillna('').str.lower().str.contains(search_value) |
-        df['TEAM_CODE'].fillna('').str.lower().str.contains(search_value) |
-        df['CATEGORY'].fillna('').str.lower().str.contains(search_value)
+        df['Hall_no'].astype(str).str.lower().str.contains(search_value) |
+        df['Floor_No'].astype(str).str.lower().str.contains(search_value) |
+        df['TEAM_CODE'].astype(str).str.lower().str.contains(search_value) |
+        df['CATEGORY'].astype(str).str.lower().str.contains(search_value)
     )
 
     result = df[mask]
@@ -59,20 +56,23 @@ if search_input:
 
         st.success(f"✅ {len(result)} result(s) found")
 
-        # 🔥 UPDATE GOOGLE SHEET (Entry_time + Attendance)
+        # ---------------- UPDATE GOOGLE SHEET ---------------- #
         for _, row in result.iterrows():
-            update_google_sheet(row['Unique_SNo'])
+            update_google_sheet(row['Unique_S.No'])
 
+        # ---------------- DISPLAY ---------------- #
         st.dataframe(result[[
             'S.No',
-            'Unique_SNo',
+            'Unique_S.No',
             'CATEGORY',
             'TEAM_CODE',
             'Name',
             'Mobile_Number',
             'DESIGNATION',
             'Hall_no',
-            'Floor_No'
+            'Floor_No',
+            'Entry_time',
+            'Attendance'
         ]])
 
     else:
