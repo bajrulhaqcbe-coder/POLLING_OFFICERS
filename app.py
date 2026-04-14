@@ -92,20 +92,18 @@ def log_to_google_sheet(row):
 
 # ------------------ DASHBOARD ------------------ #
 @st.cache_data(ttl=5)
-def load_dashboard():
-    return pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv")
+dash_df = pd.read_csv(https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv)
 
-try:
-    dash_df = load_dashboard()
+# Column clean
+dash_df.columns = dash_df.columns.str.strip()
 
-    total = len(dash_df)
-    present = len(dash_df[dash_df['Status'] == 'Present'])
-    duplicate = len(dash_df[dash_df['Status'] == 'Duplicate'])
+# Status clean
+dash_df['Status'] = dash_df['Status'].astype(str).str.strip().str.lower()
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("👥 Total", total)
-    col2.metric("✅ Present", present)
-    col3.metric("⚠️ Duplicate", duplicate)
+# Counts
+total = len(dash_df)
+present = len(dash_df[dash_df['Status'] == 'present'])
+duplicate = len(dash_df[dash_df['Status'] == 'duplicate'])
 
 except:
     st.warning("Dashboard not loaded")
