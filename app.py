@@ -99,7 +99,7 @@ if search_value:
     mask = (
         df['Unique S.No'].str.lower().str.contains(search_value) |
         df['Name'].str.lower().str.contains(search_value) |
-        df['Mobile Number'].str.contains(search_value) |
+        df['Mobile Number'].str.contains(search_value) 
             )
 
     result = df[mask]
