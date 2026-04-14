@@ -14,8 +14,12 @@ st.title("🎓 Polling Officers Search System")
 @st.cache_data
 def load_data():
     df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
-    df.columns = df.columns.str.strip()
 
+    # Clean column names
+    df.columns = df.columns.str.strip()
+    df.columns = df.columns.str.replace(" ", "_")
+
+    # Clean data
     for col in df.columns:
         df[col] = df[col].astype(str).str.strip()
 
@@ -40,8 +44,8 @@ def create_pdf(row):
     data = [
         ["Field", "Details"],
         ["Name", row.get('Name','')],
-        ["Unique No", row.get('Unique S.No','')],
-        ["Mobile", row.get('Mobile Number','')],
+        ["Unique No", row.get('Unique_SNo','')],
+        ["Mobile", row.get('Mobile_Number','')],
         ["Category", row.get('CATEGORY','')],
         ["Team Code", row.get('TEAM_CODE','')],
         ["Designation", row.get('DESIGNATION','')],
@@ -71,32 +75,36 @@ search_clicked = st.button("🔎 Search")
 search_value = None
 
 if search_clicked and search_input:
-    search_value = search_input.strip()
+    search_value = search_input.strip().lower()
 
 # ------------------ SEARCH LOGIC ------------------ #
 if search_value:
 
-    search_value = search_value.lower()
-
-    result = df[
-        df['Unique S.No'].str.lower().str.contains(search_value) |
+    mask = (
+        df['Unique_SNo'].str.lower().str.contains(search_value) |
         df['Name'].str.lower().str.contains(search_value) |
-        df['Mobile Number'].str.contains(search_value) |
+        df['Mobile_Number'].str.contains(search_value) |
         df['Hall_no'].str.lower().str.contains(search_value) |
         df['Floor_No'].str.lower().str.contains(search_value) |
         df['TEAM_CODE'].str.lower().str.contains(search_value) |
         df['CATEGORY'].str.lower().str.contains(search_value)
-    ]
+    )
+
+    result = df[mask]
 
     if not result.empty:
 
         st.success(f"✅ {len(result)} result(s) found")
 
-        # 🔥 ATTENDANCE LIST TABLE
+        # ------------------ ATTENDANCE TABLE ------------------ #
         st.subheader("📋 Attendance List")
-        st.dataframe(result[['Name','Unique S.No','Hall_no','Floor_No','Attendance']])
 
-        # RESULT DETAILS
+        cols_to_show = ['Name','Unique_SNo','Hall_no','Floor_No','Attendance']
+        existing_cols = [c for c in cols_to_show if c in result.columns]
+
+        st.dataframe(result[existing_cols])
+
+        # ------------------ DETAILS ------------------ #
         for _, row in result.iterrows():
 
             st.markdown("---")
@@ -104,8 +112,8 @@ if search_value:
             st.markdown(f"""
             ### 👤 {row.get('Name', '')}
 
-            **🆔 Unique No:** {row.get('Unique S.No', '')}  
-            **📱 Mobile:** {row.get('Mobile Number', '')}  
+            **🆔 Unique No:** {row.get('Unique_SNo', '')}  
+            **📱 Mobile:** {row.get('Mobile_Number', '')}  
             **🏷 Category:** {row.get('CATEGORY', '')}  
             **👥 Team Code:** {row.get('TEAM_CODE', '')}  
             **🎖 Designation:** {row.get('DESIGNATION', '')}  
@@ -117,9 +125,9 @@ if search_value:
             pdf_buffer = create_pdf(row)
 
             st.download_button(
-                "📄 Download PDF",
+                label="📄 PDF Download",
                 data=pdf_buffer,
-                file_name=f"{row.get('Unique S.No','result')}.pdf",
+                file_name=f"{row.get('Unique_SNo','result')}.pdf",
                 mime="application/pdf"
             )
 
