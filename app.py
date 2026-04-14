@@ -30,11 +30,18 @@ def log_to_google_sheet(row):
         "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    response = requests.post(GOOGLE_SCRIPT_URL, json=data)
+    try:
+        response = requests.post(
+            GOOGLE_SCRIPT_URL,
+            json=data,
+            headers={"Content-Type": "application/json"}
+        )
 
-    st.write("STATUS CODE:", response.status_code)
-    st.write("RESPONSE:", response.text)
+        st.write("STATUS CODE:", response.status_code)
+        st.write("RESPONSE TEXT:", response.text)
 
+    except Exception as e:
+        st.error(e)
 # ---------------- SEARCH ---------------- #
 search = st.text_input("🔍 Enter Mobile / ID")
 
