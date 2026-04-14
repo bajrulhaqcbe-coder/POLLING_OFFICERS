@@ -8,7 +8,7 @@ st.title("🎓 Polling Officers Search System")
 # ------------------ LOAD DATA ------------------ #
 @st.cache_data
 def load_data():
-    df = pd.read_excel("data.xlsx")
+    df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
     df.columns = df.columns.str.strip()
 
     for col in df.columns:
