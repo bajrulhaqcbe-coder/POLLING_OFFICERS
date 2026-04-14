@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import io
+from datetime import datetime
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
@@ -18,7 +19,7 @@ def load_data():
     # clean column names
     df.columns = df.columns.str.strip()
 
-    # rename columns (IMPORTANT FIX)
+    # rename important columns
     df = df.rename(columns={
         "Unique S.No": "Unique_SNo",
         "Mobile Number": "Mobile_Number"
@@ -29,6 +30,7 @@ def load_data():
         df[col] = df[col].astype(str).str.strip()
 
     return df
+
 
 df = load_data()
 
@@ -62,9 +64,10 @@ def create_pdf(row):
     table = Table(data, colWidths=[120, 250])
 
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.darkblue),
+        ("BACKGROUND", (0,0), (-1,0), colors.grey),
         ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-        ("GRID", (0,0), (-1,-1), 1, colors.black),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.black),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
     ]))
 
     content.append(table)
@@ -73,26 +76,24 @@ def create_pdf(row):
     buffer.seek(0)
     return buffer
 
+
 # ------------------ SEARCH ------------------ #
 search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
-search_clicked = st.button("🔎 Search")
-
-search_value = None
-
-if search_clicked and search_input:
-    search_value = search_input.strip().lower()
 
 # ------------------ LOGIC ------------------ #
-if search_value:
+if search_input:
+
+    search_value = search_input.strip().lower()
+    search_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     mask = (
-        df['Unique_SNo'].str.lower().str.contains(search_value) |
-        df['Name'].str.lower().str.contains(search_value) |
-        df['Mobile_Number'].str.contains(search_value) |
-        df['Hall_no'].str.lower().str.contains(search_value) |
-        df['Floor_No'].str.lower().str.contains(search_value) |
-        df['TEAM_CODE'].str.lower().str.contains(search_value) |
-        df['CATEGORY'].str.lower().str.contains(search_value)
+        df['Unique_SNo'].fillna('').str.lower().str.contains(search_value) |
+        df['Name'].fillna('').str.lower().str.contains(search_value) |
+        df['Mobile_Number'].astype(str).str.contains(search_value) |
+        df['Hall_no'].fillna('').str.lower().str.contains(search_value) |
+        df['Floor_No'].fillna('').str.lower().str.contains(search_value) |
+        df['TEAM_CODE'].fillna('').str.lower().str.contains(search_value) |
+        df['CATEGORY'].fillna('').str.lower().str.contains(search_value)
     )
 
     result = df[mask]
@@ -101,7 +102,14 @@ if search_value:
 
         st.success(f"✅ {len(result)} result(s) found")
 
-        # ---------------- ATTENDANCE TABLE ---------------- #
+        # ---------------- UPDATE ATTENDANCE WITH TIME ---------------- #
+        for idx in result.index:
+            df.at[idx, 'Attendance'] = f"Search @ {search_time}"
+
+        # SAVE BACK TO EXCEL (IMPORTANT)
+        df.to_excel("2ND TRAINING ROOMS.xlsx", index=False)
+
+        # ---------------- SHOW TABLE ---------------- #
         st.subheader("📋 Attendance List")
 
         st.dataframe(result[[
@@ -115,7 +123,7 @@ if search_value:
             'Attendance'
         ]])
 
-        # ---------------- DETAILS ---------------- #
+        # ---------------- DETAILS + PDF ---------------- #
         for _, row in result.iterrows():
 
             st.markdown("---")
