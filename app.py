@@ -15,11 +15,16 @@ st.title("🎓 Polling Officers Search System")
 def load_data():
     df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
-    # Clean column names
+    # clean column names
     df.columns = df.columns.str.strip()
-    df.columns = df.columns.str.replace(" ", "_")
 
-    # Clean data
+    # rename columns (IMPORTANT FIX)
+    df = df.rename(columns={
+        "Unique S.No": "Unique_SNo",
+        "Mobile Number": "Mobile_Number"
+    })
+
+    # clean values
     for col in df.columns:
         df[col] = df[col].astype(str).str.strip()
 
@@ -68,7 +73,7 @@ def create_pdf(row):
     buffer.seek(0)
     return buffer
 
-# ------------------ SEARCH INPUT ------------------ #
+# ------------------ SEARCH ------------------ #
 search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
 search_clicked = st.button("🔎 Search")
 
@@ -77,7 +82,7 @@ search_value = None
 if search_clicked and search_input:
     search_value = search_input.strip().lower()
 
-# ------------------ SEARCH LOGIC ------------------ #
+# ------------------ LOGIC ------------------ #
 if search_value:
 
     mask = (
@@ -96,30 +101,36 @@ if search_value:
 
         st.success(f"✅ {len(result)} result(s) found")
 
-        # ------------------ ATTENDANCE TABLE ------------------ #
+        # ---------------- ATTENDANCE TABLE ---------------- #
         st.subheader("📋 Attendance List")
 
-        cols_to_show = ['Name','Unique_SNo','Hall_no','Floor_No','Attendance']
-        existing_cols = [c for c in cols_to_show if c in result.columns]
+        st.dataframe(result[[
+            'Name',
+            'Unique_SNo',
+            'Mobile_Number',
+            'CATEGORY',
+            'TEAM_CODE',
+            'Hall_no',
+            'Floor_No',
+            'Attendance'
+        ]])
 
-        st.dataframe(result[existing_cols])
-
-        # ------------------ DETAILS ------------------ #
+        # ---------------- DETAILS ---------------- #
         for _, row in result.iterrows():
 
             st.markdown("---")
 
             st.markdown(f"""
-            ### 👤 {row.get('Name', '')}
+            ### 👤 {row['Name']}
 
-            **🆔 Unique No:** {row.get('Unique_SNo', '')}  
-            **📱 Mobile:** {row.get('Mobile_Number', '')}  
-            **🏷 Category:** {row.get('CATEGORY', '')}  
-            **👥 Team Code:** {row.get('TEAM_CODE', '')}  
-            **🎖 Designation:** {row.get('DESIGNATION', '')}  
-            **🏫 Hall No:** {row.get('Hall_no', '')}  
-            **🏢 Floor:** {row.get('Floor_No', '')}  
-            **📝 Attendance:** {row.get('Attendance','Not Marked')}
+            **🆔 Unique No:** {row['Unique_SNo']}  
+            **📱 Mobile:** {row['Mobile_Number']}  
+            **🏷 Category:** {row['CATEGORY']}  
+            **👥 Team Code:** {row['TEAM_CODE']}  
+            **🎖 Designation:** {row['DESIGNATION']}  
+            **🏫 Hall No:** {row['Hall_no']}  
+            **🏢 Floor:** {row['Floor_No']}  
+            **📝 Attendance:** {row['Attendance']}
             """)
 
             pdf_buffer = create_pdf(row)
@@ -127,7 +138,7 @@ if search_value:
             st.download_button(
                 label="📄 PDF Download",
                 data=pdf_buffer,
-                file_name=f"{row.get('Unique_SNo','result')}.pdf",
+                file_name=f"{row['Unique_SNo']}.pdf",
                 mime="application/pdf"
             )
 
