@@ -3,20 +3,22 @@ import pandas as pd
 import requests
 from datetime import datetime
 
-# ---------------- CONFIG ---------------- #
+# ---------------- APP CONFIG ---------------- #
 st.set_page_config(page_title="Polling Officers Search", layout="centered")
 st.title("🎓 Polling Officers Search System")
 
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhioXYQu4uts0mlLBvv7kB3XiPuWlm6lDjiR4a8Yjh1PSYHgN2l5RrEtgcvgg3SWZH/exec"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7WiyONghLCJOdwG4F66IY40GM42RNF00kYxbaXFGaWPQ4CeqUat5zTnGY91spH0Yc/exec"
 
 # ---------------- LOAD DATA ---------------- #
 df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
-# clean columns (VERY IMPORTANT FIX)
-df.columns = df.columns.str.strip()
-
-# optional safe rename (space remove)
-df.columns = df.columns.str.replace(" ", "_")
+# 🔥 FIX: CLEAN ALL COLUMN NAMES PROPERLY
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.replace(" ", "_")
+    .str.replace(".", "_")
+)
 
 # ---------------- API FUNCTION ---------------- #
 def update_google_sheet(unique_no):
@@ -33,7 +35,7 @@ def update_google_sheet(unique_no):
     except:
         pass
 
-# ---------------- SEARCH ---------------- #
+# ---------------- SEARCH INPUT ---------------- #
 search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
 
 if search_input:
@@ -41,7 +43,7 @@ if search_input:
     search_value = search_input.strip().lower()
 
     mask = (
-        df['Unique_S.No'].astype(str).str.lower().str.contains(search_value) |
+        df['Unique_S_No'].astype(str).str.lower().str.contains(search_value) |
         df['Name'].astype(str).str.lower().str.contains(search_value) |
         df['Mobile_Number'].astype(str).str.contains(search_value) |
         df['Hall_no'].astype(str).str.lower().str.contains(search_value) |
@@ -56,14 +58,14 @@ if search_input:
 
         st.success(f"✅ {len(result)} result(s) found")
 
-        # ---------------- UPDATE GOOGLE SHEET ---------------- #
+        # 🔥 UPDATE GOOGLE SHEET
         for _, row in result.iterrows():
-            update_google_sheet(row['Unique_S.No'])
+            update_google_sheet(row['Unique_S_No'])
 
-        # ---------------- DISPLAY ---------------- #
+        # ---------------- DISPLAY TABLE ---------------- #
         st.dataframe(result[[
-            'S.No',
-            'Unique_S.No',
+            'S_No',
+            'Unique_S_No',
             'CATEGORY',
             'TEAM_CODE',
             'Name',
