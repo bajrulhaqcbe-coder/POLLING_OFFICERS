@@ -17,7 +17,7 @@ GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7
 
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv"
 
-# ------------------ LOAD EXCEL ------------------ #
+# ------------------ LOAD DATA ------------------ #
 @st.cache_data
 def load_data():
     df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
@@ -30,20 +30,21 @@ def load_data():
 
 df = load_data()
 
-# ------------------ PDF FUNCTION ------------------ #
+# ------------------ PDF ------------------ #
 def create_pdf(row):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
 
     content = []
+
     content.append(Paragraph("<b>Polling Officer Details</b>", styles['Title']))
     content.append(Spacer(1, 10))
 
     data = [
         ["Name", row.get('Name','')],
-        ["Unique ID", row.get('Unique S.No','')],
         ["Mobile", row.get('Mobile Number','')],
+        ["Unique ID", row.get('Unique S.No','')],
         ["Hall", row.get('Hall_no','')],
         ["Floor", row.get('Floor_No','')],
     ]
@@ -57,8 +58,9 @@ def create_pdf(row):
     buffer.seek(0)
     return buffer
 
-# ------------------ GOOGLE SHEET LOG ------------------ #
+# ------------------ GOOGLE SHEET LOG (FIXED + DEBUG) ------------------ #
 def log_to_google_sheet(row):
+
     data = {
         "name": row.get('Name',''),
         "mobile": row.get('Mobile Number',''),
@@ -67,17 +69,26 @@ def log_to_google_sheet(row):
     }
 
     try:
-        response = requests.post("https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7mFEkd1IM7hteQ5nBGEg_LJRSu7jUOvjQOmuDriZyBC3aObl8BQ/exec, json=data")
+        response = requests.post(GOOGLE_SCRIPT_URL, json=data)
+
+        # 🔥 DEBUG IMPORTANT LINES
         st.write("📡 Status Code:", response.status_code)
-        st.write("📨 Response:", response.text)
+        st.write("📨 Response Text:", response.text)
+
+        return response.text
+
     except Exception as e:
         st.error(f"❌ Error: {e}")
 
 # ------------------ DASHBOARD ------------------ #
+@st.cache_data(ttl=3)
 def load_dashboard():
-    dash_df = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv")
+    dash_df = pd.read_csv(SHEET_CSV_URL)
+
     dash_df.columns = dash_df.columns.str.strip()
+
     dash_df['Status'] = dash_df['Status'].astype(str).str.strip().str.lower()
+
     return dash_df
 
 try:
@@ -92,18 +103,18 @@ try:
     col2.metric("✅ Present", present)
     col3.metric("⚠️ Duplicate", duplicate)
 
-    # Debug view
-    st.write("📊 Sheet Preview")
-    st.write(dash_df.tail())
+    st.write("📊 Latest Data")
+    st.dataframe(dash_df.tail())
 
 except Exception as e:
     st.error(f"Dashboard Error: {e}")
 
 # ------------------ SEARCH ------------------ #
-search = st.text_input("🔍 Enter Mobile or Unique ID")
+search = st.text_input("🔍 Enter Mobile / Unique ID")
 btn = st.button("Search")
 
 if btn and search:
+
     search = search.strip()
 
     result = df[
@@ -112,21 +123,26 @@ if btn and search:
     ]
 
     if not result.empty:
-        st.success("✅ Record Found")
+        st.success("✅ Found")
 
         for i, row in result.iterrows():
+
             st.markdown("---")
 
-            st.write("👤", row['Name'])
-            st.write("📱", row['Mobile Number'])
-            st.write("🆔", row['Unique S.No'])
+            st.write("👤 Name:", row['Name'])
+            st.write("📱 Mobile:", row['Mobile Number'])
+            st.write("🆔 ID:", row['Unique S.No'])
 
-            # 🔥 BUTTON FIX (UNIQUE KEY)
-            if st.button(f"✅ Mark Attendance", key=f"btn_{i}"):
-                log_to_google_sheet(row)
-                st.success("Attendance Marked")
+            # ------------------ ATTENDANCE BUTTON ------------------ #
+            if st.button("✅ Mark Attendance", key=f"att_{i}"):
 
-            # PDF
+                result_text = log_to_google_sheet(row)
+
+                # 🔥 IMPORTANT CHECK
+                if result_text:
+                    st.success("Attendance Sent to Google Sheet")
+
+            # ------------------ PDF ------------------ #
             pdf = create_pdf(row)
 
             st.download_button(
