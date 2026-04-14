@@ -12,6 +12,9 @@ GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7WiyONghLCJOdwG4F
 # ---------------- LOAD DATA ---------------- #
 df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
+# CLEAN COLUMNS
+df.columns = df.columns.str.strip()
+
 # 🔥 FIX: CLEAN ALL COLUMN NAMES PROPERLY
 df.columns = (
     df.columns
@@ -42,15 +45,15 @@ if search_input:
 
     search_value = search_input.strip().lower()
 
-    mask = (
-        df['Unique_S_No'].astype(str).str.lower().str.contains(search_value) |
-        df['Name'].astype(str).str.lower().str.contains(search_value) |
-        df['Mobile_Number'].astype(str).str.contains(search_value) |
-        df['Hall_no'].astype(str).str.lower().str.contains(search_value) |
-        df['Floor_No'].astype(str).str.lower().str.contains(search_value) |
-        df['TEAM_CODE'].astype(str).str.lower().str.contains(search_value) |
-        df['CATEGORY'].astype(str).str.lower().str.contains(search_value)
-    )
+mask = (
+    df['Unique_S_No'].astype(str).str.lower().str.contains(search_value) |
+    df['Name'].astype(str).str.lower().str.contains(search_value) |
+    df['Mobile_Number'].astype(str).str.contains(search_value) |
+    df['Hall_no'].astype(str).str.lower().str.contains(search_value) |
+    df['Floor_No'].astype(str).str.lower().str.contains(search_value) |
+    df['TEAM_CODE'].astype(str).str.lower().str.contains(search_value) |
+    df['CATEGORY'].astype(str).str.lower().str.contains(search_value)
+)
 
     result = df[mask]
 
@@ -64,18 +67,17 @@ if search_input:
 
         # ---------------- DISPLAY TABLE ---------------- #
         st.dataframe(result[[
-            'S_No',
-            'Unique_S_No',
-            'CATEGORY',
-            'TEAM_CODE',
-            'Name',
-            'Mobile_Number',
-            'DESIGNATION',
-            'Hall_no',
-            'Floor_No',
-            'Entry_time',
-            'Attendance'
-        ]])
+    'Unique_S_No',
+    'CATEGORY',
+    'TEAM_CODE',
+    'Name',
+    'Mobile_Number',
+    'DESIGNATION',
+    'Hall_no',
+    'Floor_No',
+    'Entry_time',
+    'Attendance'
+]])
 
     else:
         st.error("❌ No Data Found")
