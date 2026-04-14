@@ -9,7 +9,7 @@ st.set_page_config(page_title="Attendance System", layout="centered")
 st.title("🎓 Attendance System")
 
 # 🔥 YOUR GOOGLE SCRIPT URL
-GOOGLE_SCRIPT_URL = "PASTE_YOUR_NEW_EXEC_URL_HERE"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVi6aqOzEUOqQwoQCeGBx0LhSkBpKbdQZ6b-_XpOa5rmJJ_Ef4onWpqJ0O88Xtnrjy8g/exec"
 
 # ---------------- DATA LOAD ---------------- #
 @st.cache_data
