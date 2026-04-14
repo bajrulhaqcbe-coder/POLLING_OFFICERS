@@ -37,30 +37,37 @@ def log_to_google_sheet(row):
 
 # ---------------- SEARCH ---------------- #
 search = st.text_input("🔍 Enter Mobile / ID")
+
 btn = st.button("Search")
 
 if btn and search:
 
+    search = search.strip()
+
+    df.columns = df.columns.str.strip()
+
+    # 🔥 CLEAN DATA (IMPORTANT)
+    df['Mobile Number'] = df['Mobile Number'].astype(str).str.strip()
+    df['Unique S.No'] = df['Unique S.No'].astype(str).str.strip()
+
     result = df[
         (df['Mobile Number'] == search) |
-        (df['Unique S.No'].astype(str) == search)
+        (df['Unique S.No'] == search)
     ]
 
-    if not result.empty:
+    if len(result) > 0:
 
         for i, row in result.iterrows():
 
-            st.markdown("---")
+            st.success("✅ Found")
 
             st.write("👤 Name:", row['Name'])
             st.write("📱 Mobile:", row['Mobile Number'])
             st.write("🆔 ID:", row['Unique S.No'])
 
-            # ✅ ATTENDANCE BUTTON
-            if st.button("✅ Mark Attendance", key=f"btn_{i}"):
-
+            if st.button("✅ Mark Attendance", key=f"att_{i}"):
                 log_to_google_sheet(row)
-                st.success("Attendance Marked ✔")
+                st.success("Attendance Marked")
 
     else:
-        st.error("No Data Found")
+        st.error("❌ No Data Found")
