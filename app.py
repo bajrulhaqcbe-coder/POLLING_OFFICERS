@@ -40,7 +40,7 @@ def create_pdf(row):
 
     content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Title']))
     content.append(Spacer(1, 8))
-    content.append(Paragraph("<b>Tamil Nadu Legislative Assembly election-2026</b>", styles['Tiltle']))
+    content.append(Paragraph("<b>Tamil Nadu Legislative Assembly election-2026</b>", styles['Title']))
     content.append(Spacer(1, 10))
 
     content.append(Paragraph(
