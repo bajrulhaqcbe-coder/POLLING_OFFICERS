@@ -11,28 +11,19 @@ st.set_page_config(page_title="Polling Officers Search", layout="centered")
 
 st.title("🎓 Polling Officers Search System")
 
-# ------------------ LOAD DATA ------------------ #
-@st.cache_data
-def load_data():
-    df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
+# ------------------ LOAD DATA (NO CACHE - IMPORTANT FIX) ------------------ #
+if "df" not in st.session_state:
+    st.session_state.df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
-    # clean column names
-    df.columns = df.columns.str.strip()
+    st.session_state.df.columns = st.session_state.df.columns.str.strip()
 
-    # rename important columns
-    df = df.rename(columns={
+    st.session_state.df = st.session_state.df.rename(columns={
         "Unique S.No": "Unique_SNo",
         "Mobile Number": "Mobile_Number"
     })
 
-    # clean values
-    for col in df.columns:
-        df[col] = df[col].astype(str).str.strip()
-
-    return df
-
-
-df = load_data()
+    for col in st.session_state.df.columns:
+        st.session_state.df[col] = st.session_state.df[col].astype(str).str.strip()
 
 # ------------------ PDF FUNCTION ------------------ #
 def create_pdf(row):
@@ -76,13 +67,12 @@ def create_pdf(row):
     buffer.seek(0)
     return buffer
 
-
 # ------------------ SEARCH ------------------ #
 search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
 
-# ------------------ LOGIC ------------------ #
 if search_input:
 
+    df = st.session_state.df
     search_value = search_input.strip().lower()
     search_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -104,10 +94,10 @@ if search_input:
 
         # ---------------- UPDATE ATTENDANCE WITH TIME ---------------- #
         for idx in result.index:
-            df.at[idx, 'Attendance'] = f"Search @ {search_time}"
+            st.session_state.df.at[idx, 'Attendance'] = f"Search @ {search_time}"
 
-        # SAVE BACK TO EXCEL (IMPORTANT)
-        df.to_excel("2ND TRAINING ROOMS.xlsx", index=False)
+        # SAVE TO EXCEL (IMPORTANT FIX)
+        st.session_state.df.to_excel("2ND TRAINING ROOMS.xlsx", index=False)
 
         # ---------------- SHOW TABLE ---------------- #
         st.subheader("📋 Attendance List")
