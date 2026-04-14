@@ -37,23 +37,19 @@ def create_pdf(row):
     styles = getSampleStyleSheet()
 
     content = []
-
-    content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Title']))
+    content.append(Paragraph("<b>Polling Officer Details</b>", styles['Title']))
     content.append(Spacer(1, 10))
 
     data = [
-        ["Field", "Details"],
         ["Name", row.get('Name','')],
-        ["Unique No", row.get('Unique S.No','')],
+        ["Unique ID", row.get('Unique S.No','')],
         ["Mobile", row.get('Mobile Number','')],
         ["Hall", row.get('Hall_no','')],
         ["Floor", row.get('Floor_No','')],
     ]
 
     table = Table(data)
-    table.setStyle(TableStyle([
-        ("GRID", (0,0), (-1,-1), 1, colors.black),
-    ]))
+    table.setStyle(TableStyle([("GRID", (0,0), (-1,-1), 1, colors.black)]))
 
     content.append(table)
     doc.build(content)
@@ -71,21 +67,17 @@ def log_to_google_sheet(row):
     }
 
     try:
-        requests.post(GOOGLE_SCRIPT_URL, json=data)
-    except:
-        st.error("❌ Logging Failed")
+        response = requests.post("https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7mFEkd1IM7hteQ5nBGEg_LJRSu7jUOvjQOmuDriZyBC3aObl8BQ/exec, json=data")
+        st.write("📡 Status Code:", response.status_code)
+        st.write("📨 Response:", response.text)
+    except Exception as e:
+        st.error(f"❌ Error: {e}")
 
 # ------------------ DASHBOARD ------------------ #
-@st.cache_data(ttl=5)
 def load_dashboard():
-    dash_df = pd.read_csv(SHEET_CSV_URL)
-
-    # Clean columns
+    dash_df = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv")
     dash_df.columns = dash_df.columns.str.strip()
-
-    # Clean Status
     dash_df['Status'] = dash_df['Status'].astype(str).str.strip().str.lower()
-
     return dash_df
 
 try:
@@ -100,15 +92,15 @@ try:
     col2.metric("✅ Present", present)
     col3.metric("⚠️ Duplicate", duplicate)
 
-    # Debug (optional remove later)
-    # st.write(dash_df.head())
-    # st.write(dash_df['Status'].unique())
+    # Debug view
+    st.write("📊 Sheet Preview")
+    st.write(dash_df.tail())
 
 except Exception as e:
     st.error(f"Dashboard Error: {e}")
 
 # ------------------ SEARCH ------------------ #
-search = st.text_input("🔍 Enter Mobile Number or Unique ID")
+search = st.text_input("🔍 Enter Mobile or Unique ID")
 btn = st.button("Search")
 
 if btn and search:
@@ -123,30 +115,24 @@ if btn and search:
         st.success("✅ Record Found")
 
         for i, row in result.iterrows():
-
             st.markdown("---")
 
-            st.markdown(f"""
-            ### 👤 {row.get('Name','')}
-            **🆔 Unique ID:** {row.get('Unique S.No','')}  
-            **📱 Mobile:** {row.get('Mobile Number','')}  
-            **🏫 Hall:** {row.get('Hall_no','')}  
-            **🏢 Floor:** {row.get('Floor_No','')}  
-            """)
+            st.write("👤", row['Name'])
+            st.write("📱", row['Mobile Number'])
+            st.write("🆔", row['Unique S.No'])
 
-            # Attendance Button
-            if st.button(f"✅ Mark Attendance {i}"):
+            # 🔥 BUTTON FIX (UNIQUE KEY)
+            if st.button(f"✅ Mark Attendance", key=f"btn_{i}"):
                 log_to_google_sheet(row)
-                st.success("Attendance Marked Successfully")
+                st.success("Attendance Marked")
 
-            # PDF Download
-            pdf_buffer = create_pdf(row)
+            # PDF
+            pdf = create_pdf(row)
 
             st.download_button(
-                label="📄 Download PDF",
-                data=pdf_buffer,
-                file_name=f"{row.get('Unique S.No','result')}.pdf",
-                mime="application/pdf"
+                "📄 Download PDF",
+                pdf,
+                file_name=f"{row['Unique S.No']}.pdf"
             )
 
     else:
