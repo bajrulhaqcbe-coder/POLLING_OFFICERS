@@ -1,80 +1,47 @@
 import streamlit as st
 import pandas as pd
-import io
+import requests
 from datetime import datetime
 
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-
 st.set_page_config(page_title="Polling Officers Search", layout="centered")
-
 st.title("🎓 Polling Officers Search System")
 
-# ------------------ LOAD DATA (NO CACHE - IMPORTANT FIX) ------------------ #
-if "df" not in st.session_state:
-    st.session_state.df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby23u0l0QbailYnsSluJ_9nSxRn1onjDflNSd-zuymNLfEtS32dfAueRWSoIWsAsiLL/exec"
 
-    st.session_state.df.columns = st.session_state.df.columns.str.strip()
+# ---------------- LOAD DATA ---------------- #
+df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
-    st.session_state.df = st.session_state.df.rename(columns={
-        "Unique S.No": "Unique_SNo",
-        "Mobile Number": "Mobile_Number"
-    })
+df.columns = df.columns.str.strip()
 
-    for col in st.session_state.df.columns:
-        st.session_state.df[col] = st.session_state.df[col].astype(str).str.strip()
+df = df.rename(columns={
+    "Unique S.No": "Unique_SNo",
+    "Mobile_Number": "Mobile_Number"
+})
 
-# ------------------ PDF FUNCTION ------------------ #
-def create_pdf(row):
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer)
-    styles = getSampleStyleSheet()
+for col in df.columns:
+    df[col] = df[col].astype(str).str.strip()
 
-    content = []
+# ---------------- API FUNCTION ---------------- #
+def update_google_sheet(unique_no):
 
-    content.append(Paragraph("123 POLLACHI ASSEMBLY CONSTITUENCY", styles['Title']))
-    content.append(Spacer(1, 10))
+    time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    content.append(Paragraph("Training Center: MCET College", styles['Normal']))
-    content.append(Spacer(1, 20))
+    payload = {
+        "Unique_SNo": unique_no,
+        "Time": time
+    }
 
-    data = [
-        ["Field", "Details"],
-        ["Name", row.get('Name','')],
-        ["Unique No", row.get('Unique_SNo','')],
-        ["Mobile", row.get('Mobile_Number','')],
-        ["Category", row.get('CATEGORY','')],
-        ["Team Code", row.get('TEAM_CODE','')],
-        ["Designation", row.get('DESIGNATION','')],
-        ["Hall No", row.get('Hall_no','')],
-        ["Floor", row.get('Floor_No','')],
-        ["Attendance", row.get('Attendance','Not Marked')],
-    ]
+    try:
+        requests.post(GOOGLE_SCRIPT_URL, json=payload)
+    except:
+        pass
 
-    table = Table(data, colWidths=[120, 250])
-
-    table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.grey),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.black),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-    ]))
-
-    content.append(table)
-
-    doc.build(content)
-    buffer.seek(0)
-    return buffer
-
-# ------------------ SEARCH ------------------ #
-search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
+# ---------------- SEARCH ---------------- #
+search_input = st.text_input("🔍 Search")
 
 if search_input:
 
-    df = st.session_state.df
     search_value = search_input.strip().lower()
-    search_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     mask = (
         df['Unique_SNo'].fillna('').str.lower().str.contains(search_value) |
@@ -92,53 +59,21 @@ if search_input:
 
         st.success(f"✅ {len(result)} result(s) found")
 
-        # ---------------- UPDATE ATTENDANCE WITH TIME ---------------- #
-        for idx in result.index:
-            st.session_state.df.at[idx, 'Attendance'] = f"Search @ {search_time}"
-
-        # SAVE TO EXCEL (IMPORTANT FIX)
-        st.session_state.df.to_excel("2ND TRAINING ROOMS.xlsx", index=False)
-
-        # ---------------- SHOW TABLE ---------------- #
-        st.subheader("📋 Attendance List")
+        # 🔥 UPDATE GOOGLE SHEET (Entry_time + Attendance)
+        for _, row in result.iterrows():
+            update_google_sheet(row['Unique_SNo'])
 
         st.dataframe(result[[
-            'Name',
+            'S.No',
             'Unique_SNo',
-            'Mobile_Number',
             'CATEGORY',
             'TEAM_CODE',
+            'Name',
+            'Mobile_Number',
+            'DESIGNATION',
             'Hall_no',
-            'Floor_No',
-            'Attendance'
+            'Floor_No'
         ]])
-
-        # ---------------- DETAILS + PDF ---------------- #
-        for _, row in result.iterrows():
-
-            st.markdown("---")
-
-            st.markdown(f"""
-            ### 👤 {row['Name']}
-
-            **🆔 Unique No:** {row['Unique_SNo']}  
-            **📱 Mobile:** {row['Mobile_Number']}  
-            **🏷 Category:** {row['CATEGORY']}  
-            **👥 Team Code:** {row['TEAM_CODE']}  
-            **🎖 Designation:** {row['DESIGNATION']}  
-            **🏫 Hall No:** {row['Hall_no']}  
-            **🏢 Floor:** {row['Floor_No']}  
-            **📝 Attendance:** {row['Attendance']}
-            """)
-
-            pdf_buffer = create_pdf(row)
-
-            st.download_button(
-                label="📄 PDF Download",
-                data=pdf_buffer,
-                file_name=f"{row['Unique_SNo']}.pdf",
-                mime="application/pdf"
-            )
 
     else:
         st.error("❌ No Data Found")
