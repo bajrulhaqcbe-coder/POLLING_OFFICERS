@@ -70,7 +70,7 @@ if btn and search:
 
             st.write("👤 Name:", row['Name'])
             st.write("📱 Mobile:", row['Mobile Number'])
-            st.write("if st.button("✅ Mark Attendance", key=f"att_{i}"):
+            st.write(if st.button("✅ Mark Attendance", key=f"att_{i}"):
 
     st.write("Sending data...")
 
