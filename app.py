@@ -82,7 +82,7 @@ def create_pdf(row):
 query_params = st.query_params
 search_param = query_params.get("id")
 
-search_input = st.text_input("🔍 Search (ID / Name / Mobile / Hall / Floor)")
+search_input = st.text_input("🔍 Search (UNIQUE ID / Name / Mobile )")
 search_clicked = st.button("🔎 Search")
 
 search_value = None
@@ -100,11 +100,7 @@ if search_value:
         df['Unique S.No'].str.lower().str.contains(search_value) |
         df['Name'].str.lower().str.contains(search_value) |
         df['Mobile Number'].str.contains(search_value) |
-        df['Hall_no'].str.lower().str.contains(search_value) |
-        df['Floor_No'].str.lower().str.contains(search_value) |
-        df['TEAM_CODE'].str.lower().str.contains(search_value) |
-        df['CATEGORY'].str.lower().str.contains(search_value)
-    )
+            )
 
     result = df[mask]
 
