@@ -27,6 +27,11 @@ def load_data():
 df = load_data()
 
 # ------------------ PDF FUNCTION ------------------ #
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+import io
+
 def create_pdf(row):
     buffer = io.BytesIO()
 
@@ -35,34 +40,48 @@ def create_pdf(row):
 
     content = []
 
-    content.append(Paragraph(f"<b>Name:</b> {row.get('Name','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+    # 🎯 TITLE
+    content.append(Paragraph("<b><font size=14>Polling Officers Details</font></b>", styles['Title']))
+    content.append(Spacer(1, 20))
 
-    content.append(Paragraph(f"<b>Unique No:</b> {row.get('Unique S.No','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+    # 🎯 TABLE DATA (Card Style)
+    data = [
+        ["Field", "Details"],
+        ["Name", row.get('Name','')],
+        ["Unique No", row.get('Unique S.No','')],
+        ["Mobile", row.get('Mobile Number','')],
+        ["Category", row.get('CATEGORY','')],
+        ["Team Code", row.get('TEAM_CODE','')],
+        ["Designation", row.get('DESIGNATION','')],
+        ["Hall No", row.get('Hall_no','')],
+        ["Floor", row.get('Floor_No','')],
+    ]
 
-    content.append(Paragraph(f"<b>Mobile:</b> {row.get('Mobile Number','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+    table = Table(data, colWidths=[120, 250])
 
-    content.append(Paragraph(f"<b>Category:</b> {row.get('CATEGORY','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+    # 🎨 STYLE
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.grey),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
 
-    content.append(Paragraph(f"<b>Team Code:</b> {row.get('TEAM_CODE','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("FONTNAME", (0,1), (0,-1), "Helvetica-Bold"),
 
-    content.append(Paragraph(f"<b>Designation:</b> {row.get('DESIGNATION','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+        ("ALIGN", (0,0), (-1,-1), "LEFT"),
 
-    content.append(Paragraph(f"<b>Hall No:</b> {row.get('Hall_no','')}", styles['Normal']))
-    content.append(Spacer(1, 10))
+        ("GRID", (0,0), (-1,-1), 1, colors.black),
 
-    content.append(Paragraph(f"<b>Floor:</b> {row.get('Floor_No','')}", styles['Normal']))
+        ("BACKGROUND", (0,1), (-1,-1), colors.whitesmoke),
+
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.whitesmoke, colors.lightgrey]),
+    ]))
+
+    content.append(table)
 
     doc.build(content)
 
     buffer.seek(0)
     return buffer
-
 
 # ------------------ AUTO DOWNLOAD FUNCTION ------------------ #
 def auto_download_pdf(pdf_buffer, filename="result.pdf"):
