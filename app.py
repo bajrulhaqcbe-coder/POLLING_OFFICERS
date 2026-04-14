@@ -7,7 +7,7 @@ from datetime import datetime
 st.set_page_config(page_title="Polling Officers Search", layout="centered")
 st.title("🎓 Polling Officers Search System")
 
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/XXXX/exec"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhioXYQu4uts0mlLBvv7kB3XiPuWlm6lDjiR4a8Yjh1PSYHgN2l5RrEtgcvgg3SWZH/exec"
 
 # ---------------- LOAD DATA ---------------- #
 df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
