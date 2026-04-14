@@ -3,7 +3,8 @@ import pandas as pd
 import io
 import base64
 
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Polling Officers Search", layout="centered")
@@ -15,10 +16,8 @@ st.title("🎓 Polling Officers Search System")
 def load_data():
     df = pd.read_excel("2ND TRAINING ROOMS.xlsx")
 
-    # Column clean
     df.columns = df.columns.str.strip()
 
-    # Value clean
     for col in df.columns:
         df[col] = df[col].astype(str).str.strip()
 
@@ -26,12 +25,54 @@ def load_data():
 
 df = load_data()
 
-# ------------------ PDF FUNCTION ------------------ #
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-import io
+# ------------------ GIFT ANIMATION ------------------ #
+def show_gift_animation():
+    animation_html = """
+    <html>
+    <head>
+    <style>
+    body { margin:0; overflow:hidden; }
 
+    .gift {
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 70px;
+        animation: pop 1s ease-out forwards;
+    }
+
+    @keyframes pop {
+        0% { transform: translate(-50%, -50%) scale(0); opacity:0; }
+        100% { transform: translate(-50%, -50%) scale(1.2); opacity:1; }
+    }
+    </style>
+    </head>
+
+    <body>
+        <div class="gift">🎁</div>
+
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        <script>
+        var duration = 2 * 1000;
+        var end = Date.now() + duration;
+
+        (function frame() {
+          confetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0 } });
+          confetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1 } });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        }());
+        </script>
+    </body>
+    </html>
+    """
+
+    st.components.v1.html(animation_html, height=200)
+
+# ------------------ PDF FUNCTION ------------------ #
 def create_pdf(row):
     buffer = io.BytesIO()
 
@@ -40,11 +81,21 @@ def create_pdf(row):
 
     content = []
 
-    # 🎯 TITLE
-    content.append(Paragraph("<b><font size=14>Polling Officers Details</font></b>", styles['Title']))
+    # HEADER
+    content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Title']))
+    content.append(Spacer(1, 8))
+    content.append(Paragraph("<b>சட்ட மன்ற தேர்தல்-2026</b>", styles['Normal']))
+    content.append(Spacer(1, 10))
+
+    content.append(Paragraph(
+        "<b>Training Center:</b><br/>"
+        "டாக்டர். மஹாலிங்காம் பொறியியல் மற்றும் தொழில்நுட்பக் கல்லூரி (எம்.சி.இ.டி)",
+        styles['Normal']
+    ))
+
     content.append(Spacer(1, 20))
 
-    # 🎯 TABLE DATA (Card Style)
+    # TABLE
     data = [
         ["Field", "Details"],
         ["Name", row.get('Name','')],
@@ -59,21 +110,13 @@ def create_pdf(row):
 
     table = Table(data, colWidths=[120, 250])
 
-    # 🎨 STYLE
     table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.grey),
+        ("BACKGROUND", (0,0), (-1,0), colors.darkblue),
         ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-
         ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
         ("FONTNAME", (0,1), (0,-1), "Helvetica-Bold"),
-
-        ("ALIGN", (0,0), (-1,-1), "LEFT"),
-
         ("GRID", (0,0), (-1,-1), 1, colors.black),
-
         ("BACKGROUND", (0,1), (-1,-1), colors.whitesmoke),
-
-        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.whitesmoke, colors.lightgrey]),
     ]))
 
     content.append(table)
@@ -83,7 +126,7 @@ def create_pdf(row):
     buffer.seek(0)
     return buffer
 
-# ------------------ AUTO DOWNLOAD FUNCTION ------------------ #
+# ------------------ AUTO DOWNLOAD ------------------ #
 def auto_download_pdf(pdf_buffer, filename="result.pdf"):
     b64 = base64.b64encode(pdf_buffer.getvalue()).decode()
 
@@ -99,7 +142,6 @@ def auto_download_pdf(pdf_buffer, filename="result.pdf"):
     """
 
     st.components.v1.html(html, height=0)
-
 
 # ------------------ INPUT ------------------ #
 query_params = st.query_params
@@ -132,10 +174,20 @@ if search_value:
     result = df[mask]
 
     if not result.empty:
-        st.balloons()  # 🎉 animation
+        show_gift_animation()  # 🎁 Animation
         st.success(f"✅ {len(result)} result(s) found")
 
-        # 👉 FIRST RESULT மட்டும் auto download (browser block avoid)
+        # TITLE CARD
+        st.markdown("""
+        <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
+            <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
+            <h4>சட்ட மன்ற தேர்தல்-2026</h4>
+            <p><b>Training Center:</b><br>
+            டாக்டர். மஹாலிங்காம் பொறியியல் மற்றும் தொழில்நுட்பக் கல்லூரி (எம்.சி.இ.டி)</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # AUTO PDF DOWNLOAD (first record)
         first_row = result.iloc[0]
         pdf_buffer = create_pdf(first_row)
 
@@ -144,7 +196,7 @@ if search_value:
             filename=f"{first_row.get('Unique S.No','result')}.pdf"
         )
 
-        # 👉 Result display
+        # RESULT DISPLAY
         for _, row in result.iterrows():
             with st.container():
                 st.markdown("---")
