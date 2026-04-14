@@ -86,7 +86,7 @@ def log_to_google_sheet(row):
     }
 
     try:
-        requests.post(https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7mFEkd1IM7hteQ5nBGEg_LJRSu7jUOvjQOmuDriZyBC3aObl8BQ/exec, json=data)
+        requests.post("https://script.google.com/macros/s/AKfycbz2qjXpBHy8K56TT0X7mFEkd1IM7hteQ5nBGEg_LJRSu7jUOvjQOmuDriZyBC3aObl8BQ/exec, json=data")
     except:
         pass
 
