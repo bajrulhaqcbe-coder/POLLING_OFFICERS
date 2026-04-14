@@ -13,7 +13,7 @@ st.set_page_config(page_title="Polling Attendance System", layout="centered")
 st.title("🎓 Polling Attendance System")
 
 # ------------------ CONFIG ------------------ #
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzU5oJdNDHm71kB-nrF_y9Rt9TSTkk9L_Pn_jJ2R-IzoKXb_Q4zVK1P2YeM2FNrXlf5/exec"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUUJNHWJDb6pcPn0Cxk3oJ2dEZBXdMSJnk6c651VihDSkTPcTl2lQ54zIyTA5wVAWHGw/exec"
 
 SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vShNwIU6UuvbAWenZN4TYQX3kDf8fB0m7TybDc5P7pqEpnKP--xGT1Cb3ITXnGgEbOOgVzOeVcmSi_P/pub?output=csv"
 
