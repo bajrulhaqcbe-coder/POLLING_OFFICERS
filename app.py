@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import io
+import requests
+from datetime import datetime
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
@@ -9,6 +11,10 @@ from reportlab.lib.styles import getSampleStyleSheet
 st.set_page_config(page_title="Polling Officers Search", layout="centered")
 
 st.title("🎓 Polling Officers Search System")
+
+# ------------------ CONFIG ------------------ #
+GOOGLE_SCRIPT_URL = "YOUR_WEB_APP_URL"
+SHEET_CSV_URL = "YOUR_CSV_LINK"
 
 # ------------------ LOAD DATA ------------------ #
 @st.cache_data
@@ -24,15 +30,9 @@ def load_data():
 
 df = load_data()
 
-# ------------------ GIFT ANIMATION ------------------ #
-def show_gift_animation():
-    animation_html = """<div style="text-align:center;font-size:60px;">🎁</div>"""
-    st.components.v1.html(animation_html, height=150)
-
 # ------------------ PDF FUNCTION ------------------ #
 def create_pdf(row):
     buffer = io.BytesIO()
-
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
 
@@ -44,8 +44,7 @@ def create_pdf(row):
     content.append(Spacer(1, 10))
 
     content.append(Paragraph(
-        "<b>Training Center:</b><br/>"
-        "Dr. Mahalingam College of Engineering and Technology (MCET)",
+        "<b>Training Center:</b><br/>Dr. Mahalingam College of Engineering and Technology (MCET)",
         styles['Normal']
     ))
 
@@ -74,78 +73,91 @@ def create_pdf(row):
     content.append(table)
 
     doc.build(content)
-
     buffer.seek(0)
     return buffer
 
-# ------------------ INPUT ------------------ #
-query_params = st.query_params
-search_param = query_params.get("id")
+# ------------------ GOOGLE SHEET LOG ------------------ #
+def log_to_google_sheet(row):
+    data = {
+        "name": row.get('Name', ''),
+        "mobile": row.get('Mobile Number', ''),
+        "id": row.get('Unique S.No', ''),
+        "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
 
-search_input = st.text_input("🔍 Search (UNIQUE ID / Name / Mobile )")
-search_clicked = st.button("🔎 Search")
+    try:
+        requests.post(GOOGLE_SCRIPT_URL, json=data)
+    except:
+        pass
 
-search_value = None
+# ------------------ DASHBOARD ------------------ #
+@st.cache_data(ttl=5)
+def load_dashboard():
+    return pd.read_csv(SHEET_CSV_URL)
 
-if search_param:
-    search_value = search_param[0].strip()
-elif search_clicked and search_input:
-    search_value = search_input.strip()
+try:
+    dash_df = load_dashboard()
+
+    total = len(dash_df)
+    present = len(dash_df[dash_df['Status'] == 'Present'])
+    duplicate = len(dash_df[dash_df['Status'] == 'Duplicate'])
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("👥 Total", total)
+    col2.metric("✅ Present", present)
+    col3.metric("⚠️ Duplicate", duplicate)
+
+except:
+    st.warning("Dashboard not loaded")
 
 # ------------------ SEARCH ------------------ #
-if search_value:
-    search_value = search_value.lower()
+search_input = st.text_input("🔍 Enter Mobile Number or Unique ID")
+search_clicked = st.button("🔎 Search")
+
+if search_clicked and search_input:
+
+    search_value = search_input.strip()
 
     mask = (
-        df['Unique S.No'].str.lower().str.contains(search_value) |
-        df['Name'].str.lower().str.contains(search_value) |
-        df['Mobile Number'].str.contains(search_value) 
-            )
+        (df['Mobile Number'] == search_value) |
+        (df['Unique S.No'].str.lower() == search_value.lower())
+    )
 
     result = df[mask]
 
     if not result.empty:
-        show_gift_animation()
         st.success(f"✅ {len(result)} result(s) found")
 
-        # TITLE CARD
-        st.markdown("""
-        <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
-            <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
-            <h4>Tamil Nadu Legislative Assembly election</h4>
-            <p><b>Training Center:</b><br>
-            Dr. Mahalingam College of Engineering and Technology (MCET)</p>
-        </div>
-        """, unsafe_allow_html=True)
+        for i, row in result.iterrows():
 
-        # RESULT LOOP
-        for _, row in result.iterrows():
-            with st.container():
-                st.markdown("---")
+            st.markdown("---")
 
-                st.markdown(f"""
-                ### 👤 {row.get('Name', '')}
+            st.markdown(f"""
+            ### 👤 {row.get('Name', '')}
+            **🆔 Unique No:** {row.get('Unique S.No', '')}  
+            **📱 Mobile:** {row.get('Mobile Number', '')}  
+            **🏷 Category:** {row.get('CATEGORY', '')}  
+            **👥 Team Code:** {row.get('TEAM_CODE', '')}  
+            **🎖 Designation:** {row.get('DESIGNATION', '')}  
+            **🏫 Hall No:** {row.get('Hall_no', '')}  
+            **🏢 Floor:** {row.get('Floor_No', '')}  
+            """)
 
-                **🆔 Unique No:** {row.get('Unique S.No', '')}  
-                **📱 Mobile:** {row.get('Mobile Number', '')}  
-                **🏷 Category:** {row.get('CATEGORY', '')}  
-                **👥 Team Code:** {row.get('TEAM_CODE', '')}  
-                **🎖 Designation:** {row.get('DESIGNATION', '')}  
-                **🏫 Hall No:** {row.get('Hall_no', '')}  
-                **🏢 Floor:** {row.get('Floor_No', '')}  
-                """)
+            # 🔥 Attendance Button
+            if st.button(f"✅ Mark Attendance - {i}"):
 
-                pdf_buffer = create_pdf(row)
+                log_to_google_sheet(row)
+                st.success("Attendance Marked!")
 
-                st.download_button(
-                    label="📄 PDF Download",
-                    data=pdf_buffer,
-                    file_name=f"{row.get('Unique S.No','result')}.pdf",
-                    mime="application/pdf"
-                )
+            # PDF
+            pdf_buffer = create_pdf(row)
+
+            st.download_button(
+                label="📄 PDF Download",
+                data=pdf_buffer,
+                file_name=f"{row.get('Unique S.No','result')}.pdf",
+                mime="application/pdf"
+            )
 
     else:
         st.error("❌ No Data Found")
-
-else:
-    st.info("📌 QR scan செய்யவும் அல்லது value enter செய்து Search button அழுத்தவும்")
