@@ -45,22 +45,17 @@ if search_input:
 
     search_value = search_input.strip().lower()
 
-mask = (
-    df['Unique_S_No'].astype(str).str.lower().str.contains(search_value) |
-    df['Name'].astype(str).str.lower().str.contains(search_value) |
-    df['Mobile_Number'].astype(str).str.contains(search_value) |
-    df['Hall_no'].astype(str).str.lower().str.contains(search_value) |
-    df['Floor_No'].astype(str).str.lower().str.contains(search_value) |
-    df['TEAM_CODE'].astype(str).str.lower().str.contains(search_value) |
-    df['CATEGORY'].astype(str).str.lower().str.contains(search_value)
-)
+    mask = (
+        df['Unique_S_No'].astype(str).str.lower().str.contains(search_value) |
+        df['Name'].astype(str).str.lower().str.contains(search_value) |
+        df['Mobile_Number'].astype(str).str.contains(search_value)
+    )
 
     result = df[mask]
 
     if not result.empty:
-
-        st.success(f"✅ {len(result)} result(s) found")
-
+        st.success("Found")
+        st.dataframe(result)
         # 🔥 UPDATE GOOGLE SHEET
         for _, row in result.iterrows():
             update_google_sheet(row['Unique_S_No'])
