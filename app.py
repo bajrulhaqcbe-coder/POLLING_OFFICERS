@@ -137,6 +137,7 @@ if search_value:
 
                 **🏢 Floor:** <span style="font-size:70px; font-weight:bold; color:red;">
                 {row.get('Floor_No', '')}  
+                  </span> 
                 **🆔 Unique No:** {row.get('Unique S.No', '')}  
                 **📱 Mobile:** {row.get('Mobile Number', '')}  
                 **🏷 Category:** {row.get('CATEGORY', '')}  
