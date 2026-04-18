@@ -131,11 +131,13 @@ if search_value:
                 st.markdown(f"""
                 ### 👤 {row.get('Name', '')}
 
-               **🏫 Hall No:** <span style="font-size:70px; font-weight:bold; color:red;">
-                {row.get('Hall_no', '')}
-                </span>  
+              **🏫 <span style="font-size:25px; font-weight:bold;">Hall No:</span> 
+<span style="font-size:25px; font-weight:bold; color:red;">
+{row.get('Hall_no', '')}
+</span>
 
-                **🏢 Floor:** <span style="font-size:70px; font-weight:bold; color:red;">
+                **🏢  <span style="font-size:25px; font-weight:bold;">Floor:</span>
+                <span style="font-size:70px; font-weight:bold; color:red;">
                 {row.get('Floor_No', '')}  
                   </span> 
                 **🆔 Unique No:** {row.get('Unique S.No', '')}  
