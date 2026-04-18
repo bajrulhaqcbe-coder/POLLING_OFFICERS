@@ -113,11 +113,7 @@ if search_value:
         show_gift_animation()
         st.success(f"✅ {len(result)} result(s) found")
 
-            # RESULT LOOP
-        for _, row in result.iterrows():
-            with st.container():
-                st.markdown("---")
-# TITLE CARD
+        # TITLE CARD
         st.markdown("""
         <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
             <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
@@ -126,10 +122,15 @@ if search_value:
             Dr. Mahalingam College of Engineering and Technology (MCET)</p>
         </div>
         """, unsafe_allow_html=True)
+
+        # RESULT LOOP
+        for _, row in result.iterrows():
+            with st.container():
+                st.markdown("---")
+
                 st.markdown(f"""
                 ### 👤 {row.get('Name', '')}
-
-    **🏫** <span style="font-size:70px; font-weight:bold; color:red;">
+  **🏫 Hall No:** <span style="font-size:50px; font-weight:bold; color:red;">
                 {row.get('Hall_no', '')}
                 </span>  
                 **🆔 Unique No:** {row.get('Unique S.No', '')}  
@@ -137,9 +138,9 @@ if search_value:
                 **🏷 Category:** {row.get('CATEGORY', '')}  
                 **👥 Team Code:** {row.get('TEAM_CODE', '')}  
                 **🎖 Designation:** {row.get('DESIGNATION', '')}  
-               **🏢 Floor:** {row.get('Floor_No', '')}  
+                **🏢 Floor:** {row.get('Floor_No', '')}  
                 """, unsafe_allow_html=True)
-    
+
                 pdf_buffer = create_pdf(row)
 
                 st.download_button(
