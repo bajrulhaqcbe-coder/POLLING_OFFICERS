@@ -38,7 +38,7 @@ def create_pdf(row):
 
     content = []
 
-    content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Title']))
+    content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Normal']))
     content.append(Spacer(1, 8))
     content.append(Paragraph("<b>Tamil Nadu Legislative Assembly election</b>", styles['Normal']))
     content.append(Spacer(1, 10))
@@ -61,7 +61,7 @@ def create_pdf(row):
         ["Designation", row.get('DESIGNATION','')],
         
         # 🔥 Hall No BIG FONT
-        ["Hall No", Paragraph(f"<font size=70><b>{row.get('Hall_no','')}</b></font>", styles['Normal'])],
+        ["Hall No", Paragraph(f"<font size=70><b>{row.get('Hall_no','')}</b></font>", styles['Title'])],
         
         ["Floor", row.get('Floor_No','')],
     ]
