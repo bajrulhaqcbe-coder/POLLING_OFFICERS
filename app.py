@@ -38,7 +38,7 @@ def create_pdf(row):
 
     content = []
 
-    content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Normal']))
+    content.append(Paragraph("<b><font size=14>123 POLLACHI ASSEMBLY CONSTITUENCY</font></b>", styles['Title']))
     content.append(Spacer(1, 8))
     content.append(Paragraph("<b>Tamil Nadu Legislative Assembly election</b>", styles['Normal']))
     content.append(Spacer(1, 10))
@@ -51,6 +51,7 @@ def create_pdf(row):
 
     content.append(Spacer(1, 20))
 
+    # 🔴 PDF ல Hall No NORMAL தான்
     data = [
         ["Field", "Details"],
         ["Name", row.get('Name','')],
@@ -59,10 +60,7 @@ def create_pdf(row):
         ["Category", row.get('CATEGORY','')],
         ["Team Code", row.get('TEAM_CODE','')],
         ["Designation", row.get('DESIGNATION','')],
-        
-        # 🔥 Hall No BIG FONT
-        ["Hall No", Paragraph(f"<font size=25><b>{row.get('Hall_no','')}</b></font>", styles['Title'])],
-        
+        ["Hall No", row.get('Hall_no','')],
         ["Floor", row.get('Floor_No','')],
     ]
 
@@ -139,7 +137,7 @@ if search_value:
                 **👥 Team Code:** {row.get('TEAM_CODE', '')}  
                 **🎖 Designation:** {row.get('DESIGNATION', '')}  
 
-                **🏫 Hall No:** <span style="font-size:25px; font-weight:bold; color:red;">
+                **🏫 Hall No:** <span style="font-size:70px; font-weight:bold; color:red;">
                 {row.get('Hall_no', '')}
                 </span>  
 
@@ -159,4 +157,4 @@ if search_value:
         st.error("❌ No Data Found")
 
 else:
-    st.info("📌 Mobile/ Unique ID / Name / Hall No இவற்றில் ஏதேனும் ஒன்றை Enter செய்து Search செய்யவும்")
+    st.info("📌 Mobile / Unique ID / Name / Hall No இவற்றில் ஏதேனும் ஒன்றை Enter செய்து Search செய்யவும்")
