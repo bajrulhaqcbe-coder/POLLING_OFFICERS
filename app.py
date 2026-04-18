@@ -61,7 +61,7 @@ def create_pdf(row):
         ["Designation", row.get('DESIGNATION','')],
         
         # 🔥 Hall No BIG FONT
-        ["Hall No", Paragraph(f"<font size=25><b>{row.get('Hall_no','')}</b></font>", styles['Normal'])],
+        ["Hall No", Paragraph(f"<font size=70><b>{row.get('Hall_no','')}</b></font>", styles['Normal'])],
         
         ["Floor", row.get('Floor_No','')],
     ]
