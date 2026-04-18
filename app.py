@@ -135,7 +135,8 @@ if search_value:
                 {row.get('Hall_no', '')}
                 </span>  
 
-                **🏢 Floor:** {row.get('Floor_No', '')}  
+                **🏢 Floor:** <span style="font-size:70px; font-weight:bold; color:red;">
+                {row.get('Floor_No', '')}  
                 **🆔 Unique No:** {row.get('Unique S.No', '')}  
                 **📱 Mobile:** {row.get('Mobile Number', '')}  
                 **🏷 Category:** {row.get('CATEGORY', '')}  
