@@ -131,7 +131,7 @@ if search_value:
                 st.markdown(f"""
                 ### 👤 {row.get('Name', '')}
 
-    **🏫** <span style="font-size:300px; font-weight:bold; color:red;">
+    **🏫** <span style="font-size:70px; font-weight:bold; color:red;">
                 {row.get('Hall_no', '')}
                 </span>  
                 **🆔 Unique No:** {row.get('Unique S.No', '')}  
