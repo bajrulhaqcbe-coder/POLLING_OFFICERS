@@ -131,18 +131,18 @@ if search_value:
                 st.markdown(f"""
                 ### 👤 {row.get('Name', '')}
 
+               **🏫 Hall No:** <span style="font-size:70px; font-weight:bold; color:red;">
+                {row.get('Hall_no', '')}
+                </span>  
+
+                **🏢 Floor:** {row.get('Floor_No', '')}  
                 **🆔 Unique No:** {row.get('Unique S.No', '')}  
                 **📱 Mobile:** {row.get('Mobile Number', '')}  
                 **🏷 Category:** {row.get('CATEGORY', '')}  
                 **👥 Team Code:** {row.get('TEAM_CODE', '')}  
                 **🎖 Designation:** {row.get('DESIGNATION', '')}  
 
-                **🏫 Hall No:** <span style="font-size:70px; font-weight:bold; color:red;">
-                {row.get('Hall_no', '')}
-                </span>  
-
-                **🏢 Floor:** {row.get('Floor_No', '')}  
-                """, unsafe_allow_html=True)
+                                """, unsafe_allow_html=True)
 
                 pdf_buffer = create_pdf(row)
 
