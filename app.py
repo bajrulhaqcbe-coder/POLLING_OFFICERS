@@ -117,7 +117,15 @@ if search_value:
         for _, row in result.iterrows():
             with st.container():
                 st.markdown("---")
-
+# TITLE CARD
+        st.markdown("""
+        <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
+            <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
+            <h4>Tamil Nadu Legislative Assembly election</h4>
+            <p><b>Training Center:</b><br>
+            Dr. Mahalingam College of Engineering and Technology (MCET)</p>
+        </div>
+        """, unsafe_allow_html=True)
                 st.markdown(f"""
                 ### 👤 {row.get('Name', '')}
 
@@ -131,15 +139,7 @@ if search_value:
                 **🎖 Designation:** {row.get('DESIGNATION', '')}  
                **🏢 Floor:** {row.get('Floor_No', '')}  
                 """, unsafe_allow_html=True)
-    # TITLE CARD
-        st.markdown("""
-        <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
-            <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
-            <h4>Tamil Nadu Legislative Assembly election</h4>
-            <p><b>Training Center:</b><br>
-            Dr. Mahalingam College of Engineering and Technology (MCET)</p>
-        </div>
-        """, unsafe_allow_html=True)
+    
                 pdf_buffer = create_pdf(row)
 
                 st.download_button(
