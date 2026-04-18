@@ -113,17 +113,7 @@ if search_value:
         show_gift_animation()
         st.success(f"✅ {len(result)} result(s) found")
 
-        # TITLE CARD
-        st.markdown("""
-        <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
-            <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
-            <h4>Tamil Nadu Legislative Assembly election</h4>
-            <p><b>Training Center:</b><br>
-            Dr. Mahalingam College of Engineering and Technology (MCET)</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # RESULT LOOP
+            # RESULT LOOP
         for _, row in result.iterrows():
             with st.container():
                 st.markdown("---")
@@ -139,12 +129,17 @@ if search_value:
                 **🏷 Category:** {row.get('CATEGORY', '')}  
                 **👥 Team Code:** {row.get('TEAM_CODE', '')}  
                 **🎖 Designation:** {row.get('DESIGNATION', '')}  
-
-            
-
-                **🏢 Floor:** {row.get('Floor_No', '')}  
+               **🏢 Floor:** {row.get('Floor_No', '')}  
                 """, unsafe_allow_html=True)
-
+    # TITLE CARD
+        st.markdown("""
+        <div style="text-align:center; padding:10px; border:2px solid black; border-radius:10px; margin-bottom:20px;">
+            <h3>123 POLLACHI ASSEMBLY CONSTITUENCY</h3>
+            <h4>Tamil Nadu Legislative Assembly election</h4>
+            <p><b>Training Center:</b><br>
+            Dr. Mahalingam College of Engineering and Technology (MCET)</p>
+        </div>
+        """, unsafe_allow_html=True)
                 pdf_buffer = create_pdf(row)
 
                 st.download_button(
