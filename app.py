@@ -131,10 +131,9 @@ if search_value:
                 st.markdown(f"""
                 ### 👤 {row.get('Name', '')}
 
-              **🏫 <span style="font-size:25px; font-weight:bold;">Hall No:</span> 
-<span style="font-size:25px; font-weight:bold; color:red;">
-{row.get('Hall_no', '')}
-</span>
+       <div style="font-size:25px; font-weight:bold;">
+🏫 Hall No: <span style="color:red;">{row.get('Hall_no', '')}</span>
+</div>
 
                 **🏢  <span style="font-size:25px; font-weight:bold;">Floor:</span>
                 <span style="font-size:70px; font-weight:bold; color:red;">
