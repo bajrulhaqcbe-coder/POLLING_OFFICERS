@@ -152,4 +152,4 @@ if search_value:
         st.error("❌ No Data Found")
 
 else:
-    st.info("📌 QR scan செய்யவும் அல்லது value enter செய்து Search button அழுத்தவும்")
+    st.info("📌 Mobile/ unique ID / Name /  இவற்றில் ஏதேனும் ஒன்றை enter செய்து Search button அழுத்தவும்")
